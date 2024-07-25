@@ -49,6 +49,7 @@ func UnLock(lockName string, clientId string) (bool, string) {
 	if lock.LockClientId != clientId {
 		return false, "waiting for other client to be released"
 	}
+	lock.Status = false
 
 	return true, "ok"
 }
