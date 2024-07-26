@@ -46,13 +46,32 @@ func UnLock(lockName string, clientId string) (bool, string) {
 	}
 	lock.mu.Lock()
 	defer lock.mu.Unlock()
-	if clientId == "admin" { // 强制释放锁，避免比如某个客户端退出未释放锁，导致其他客户端拿不到锁
+	if clientId == "admin" {
 		lock.Status = false
 		return true, "ok"
 	}
 	if lock.LockClientId != clientId {
 		return false, "waiting for other client to be released"
 	}
+	lock.Status = false
+
+	return true, "ok"
+}
+
+// ForceUnLock 强制释放锁，避免比如某个客户端退出未释放锁，导致其他客户端拿不到锁
+func ForceUnLock(lockName string) (bool, string) {
+	lock, ok := Locks[lockName]
+	if !ok {
+		Locks[lockName] = &DisLock{
+			LockName: lockName,
+			Status:   false,
+			mu:       new(sync.Mutex),
+		}
+		return true, "ok"
+	}
+	lock.mu.Lock()
+	defer lock.mu.Unlock()
+
 	lock.Status = false
 
 	return true, "ok"

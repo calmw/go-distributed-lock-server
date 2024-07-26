@@ -19,8 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	LockService_Lock_FullMethodName   = "/LockService/Lock"
-	LockService_UnLock_FullMethodName = "/LockService/UnLock"
+	LockService_Lock_FullMethodName        = "/LockService/Lock"
+	LockService_UnLock_FullMethodName      = "/LockService/UnLock"
+	LockService_ForceUnLock_FullMethodName = "/LockService/ForceUnLock"
 )
 
 // LockServiceClient is the client API for LockService service.
@@ -29,6 +30,7 @@ const (
 type LockServiceClient interface {
 	Lock(ctx context.Context, in *LockRequest, opts ...grpc.CallOption) (*LockReply, error)
 	UnLock(ctx context.Context, in *UnLockRequest, opts ...grpc.CallOption) (*UnLockReply, error)
+	ForceUnLock(ctx context.Context, in *ForceUnLockRequest, opts ...grpc.CallOption) (*ForceUnLockReply, error)
 }
 
 type lockServiceClient struct {
@@ -59,12 +61,23 @@ func (c *lockServiceClient) UnLock(ctx context.Context, in *UnLockRequest, opts 
 	return out, nil
 }
 
+func (c *lockServiceClient) ForceUnLock(ctx context.Context, in *ForceUnLockRequest, opts ...grpc.CallOption) (*ForceUnLockReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ForceUnLockReply)
+	err := c.cc.Invoke(ctx, LockService_ForceUnLock_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // LockServiceServer is the server API for LockService service.
 // All implementations must embed UnimplementedLockServiceServer
 // for forward compatibility
 type LockServiceServer interface {
 	Lock(context.Context, *LockRequest) (*LockReply, error)
 	UnLock(context.Context, *UnLockRequest) (*UnLockReply, error)
+	ForceUnLock(context.Context, *ForceUnLockRequest) (*ForceUnLockReply, error)
 	mustEmbedUnimplementedLockServiceServer()
 }
 
@@ -77,6 +90,9 @@ func (UnimplementedLockServiceServer) Lock(context.Context, *LockRequest) (*Lock
 }
 func (UnimplementedLockServiceServer) UnLock(context.Context, *UnLockRequest) (*UnLockReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UnLock not implemented")
+}
+func (UnimplementedLockServiceServer) ForceUnLock(context.Context, *ForceUnLockRequest) (*ForceUnLockReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ForceUnLock not implemented")
 }
 func (UnimplementedLockServiceServer) mustEmbedUnimplementedLockServiceServer() {}
 
@@ -127,6 +143,24 @@ func _LockService_UnLock_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _LockService_ForceUnLock_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ForceUnLockRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LockServiceServer).ForceUnLock(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: LockService_ForceUnLock_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LockServiceServer).ForceUnLock(ctx, req.(*ForceUnLockRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // LockService_ServiceDesc is the grpc.ServiceDesc for LockService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -141,6 +175,10 @@ var LockService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UnLock",
 			Handler:    _LockService_UnLock_Handler,
+		},
+		{
+			MethodName: "ForceUnLock",
+			Handler:    _LockService_ForceUnLock_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

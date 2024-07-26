@@ -69,6 +69,16 @@ func (s *LockServer) UnLock(ctx context.Context, req *service.UnLockRequest) (*s
 	}, nil
 }
 
+func (s *LockServer) ForceUnLock(ctx context.Context, req *service.ForceUnLockRequest) (*service.ForceUnLockReply, error) {
+	log.Println("Client connected")
+	res, msg := service.ForceUnLock(req.LockName)
+	log.Println("Client disconnected")
+	return &service.ForceUnLockReply{
+		Result: res,
+		Msg:    msg,
+	}, nil
+}
+
 // 服务端，一元RPC方法调用的日志拦截器
 func loggingUnaryInterceptor(
 	ctx context.Context,

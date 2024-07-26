@@ -29,6 +29,17 @@ func main() {
 		LockName: LockName,
 	})
 
+	// 解锁
+	//result2, err := c.UnLock(context.Background(), &service.UnLockRequest{
+	//	ClientId: ClientId,
+	//	LockName: LockName,
+	//})
+	//
+	//// 强制解锁，避免某一个节点未释放锁就异常退出，导致其他节点拿不到锁
+	//result3, err := c.ForceUnLock(context.Background(), &service.ForceUnLockRequest{
+	//	LockName: LockName,
+	//})
+
 	s := status.Convert(err) // status.Convert函数分别访问错误代码和错误消息
 	if s.Code() != codes.OK {
 		log.Fatalf("Request failed: %v-%v\n", s.Code(), s.Message())
