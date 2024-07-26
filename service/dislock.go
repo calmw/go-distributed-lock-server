@@ -46,6 +46,10 @@ func UnLock(lockName string, clientId string) (bool, string) {
 	}
 	lock.mu.Lock()
 	defer lock.mu.Unlock()
+	if clientId == "admin" { // 强制释放锁，避免比如某个客户端退出未释放锁，导致其他客户端拿不到锁
+		lock.Status = false
+		return true, "ok"
+	}
 	if lock.LockClientId != clientId {
 		return false, "waiting for other client to be released"
 	}
