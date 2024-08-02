@@ -1,6 +1,9 @@
 package service
 
-import "sync"
+import (
+	"fmt"
+	"sync"
+)
 
 type DisLock struct {
 	mu           *sync.Mutex
@@ -25,7 +28,7 @@ func Lock(lockName string, clientId string) (bool, string) {
 	lock.mu.Lock()
 	defer lock.mu.Unlock()
 	if lock.Status {
-		return false, "waiting for release"
+		return false, fmt.Sprintf("lockName(%s), waiting client(%s) to be released", lock.LockName, lock.LockClientId)
 	}
 	lock.Status = true
 	lock.LockClientId = clientId
@@ -46,12 +49,8 @@ func UnLock(lockName string, clientId string) (bool, string) {
 	}
 	lock.mu.Lock()
 	defer lock.mu.Unlock()
-	if clientId == "admin" {
-		lock.Status = false
-		return true, "ok"
-	}
 	if lock.LockClientId != clientId {
-		return false, "waiting for other client to be released"
+		return false, fmt.Sprintf("lockName(%s), waiting for other client(%s) to be released", lock.LockName, lock.LockClientId)
 	}
 	lock.Status = false
 

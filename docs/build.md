@@ -2,9 +2,9 @@
 
 ``` shell
 # build 
-docker build -t distributed_lock_server:0.0.7 . 
+docker build -t distributed_lock_server:0.0.8 . 
 # tag
-docker tag distributed_lock_server:0.0.7 calmw/distributed_lock_server:0.0.7 
+docker tag distributed_lock_server:0.0.8 calmw/distributed_lock_server:0.0.8 
 # push
-docker push calmw/distributed_lock_server:0.0.7
+docker push calmw/distributed_lock_server:0.0.8
 ```
