@@ -12,19 +12,26 @@ type DisLock struct {
 	Status       bool
 }
 
-var Locks = map[string]*DisLock{} // LockName=>*DisLock
+var CheckExistLock *sync.Mutex
 
-func Lock(lockName string, clientId string) (bool, string) {
+var Locks map[string]*DisLock // LockName=>*DisLock
+
+func createLockIfNotExist(lockName string) *DisLock {
+	CheckExistLock.Lock()
+	defer CheckExistLock.Unlock()
 	lock, ok := Locks[lockName]
 	if !ok {
 		Locks[lockName] = &DisLock{
-			LockName:     lockName,
-			LockClientId: clientId,
-			Status:       true,
-			mu:           new(sync.Mutex),
+			LockName: lockName,
+			Status:   true,
+			mu:       new(sync.Mutex),
 		}
-		return true, "ok"
 	}
+	return lock
+}
+
+func Lock(lockName, clientId string) (bool, string) {
+	lock := createLockIfNotExist(lockName)
 	lock.mu.Lock()
 	defer lock.mu.Unlock()
 	if lock.Status {
@@ -36,17 +43,8 @@ func Lock(lockName string, clientId string) (bool, string) {
 	return true, "ok"
 }
 
-func UnLock(lockName string, clientId string) (bool, string) {
-	lock, ok := Locks[lockName]
-	if !ok {
-		Locks[lockName] = &DisLock{
-			LockName:     lockName,
-			LockClientId: clientId,
-			Status:       false,
-			mu:           new(sync.Mutex),
-		}
-		return true, "ok"
-	}
+func UnLock(lockName, clientId string) (bool, string) {
+	lock := createLockIfNotExist(lockName)
 	lock.mu.Lock()
 	defer lock.mu.Unlock()
 	if lock.LockClientId != clientId {
@@ -66,7 +64,7 @@ func ForceUnLock(lockName string) (bool, string) {
 			Status:   false,
 			mu:       new(sync.Mutex),
 		}
-		return true, "ok"
+		return false, fmt.Sprintf("lockName(%s), not exist", lock.LockName)
 	}
 	lock.mu.Lock()
 	defer lock.mu.Unlock()
