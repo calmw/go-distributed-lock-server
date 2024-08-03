@@ -23,7 +23,6 @@ func createLockIfNotExist(lockName string) *DisLock {
 	if !ok {
 		Locks[lockName] = &DisLock{
 			LockName: lockName,
-			Status:   true,
 			mu:       new(sync.Mutex),
 		}
 	}
