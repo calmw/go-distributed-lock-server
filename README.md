@@ -15,4 +15,4 @@ distributed_lock:
       - LISTEN_ADDR=0.0.0.0:6000
 ```
 
-- 客户端,参考 [example](example)
+- 使用,参考 https://github.com/calmw/go-distributed-lock
