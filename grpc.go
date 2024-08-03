@@ -50,9 +50,7 @@ func updateServiceHealth(
 }
 
 func (s *LockServer) Lock(ctx context.Context, req *service.LockRequest) (*service.LockReply, error) {
-	log.Println("Client connected")
 	res, msg := service.Lock(req.LockName, req.ClientId)
-	log.Println("Client disconnected")
 	return &service.LockReply{
 		Result: res,
 		Msg:    msg,
@@ -60,9 +58,7 @@ func (s *LockServer) Lock(ctx context.Context, req *service.LockRequest) (*servi
 }
 
 func (s *LockServer) UnLock(ctx context.Context, req *service.UnLockRequest) (*service.UnLockReply, error) {
-	log.Println("Client connected")
 	res, msg := service.UnLock(req.LockName, req.ClientId)
-	log.Println("Client disconnected")
 	return &service.UnLockReply{
 		Result: res,
 		Msg:    msg,
@@ -70,9 +66,7 @@ func (s *LockServer) UnLock(ctx context.Context, req *service.UnLockRequest) (*s
 }
 
 func (s *LockServer) ForceUnLock(ctx context.Context, req *service.ForceUnLockRequest) (*service.ForceUnLockReply, error) {
-	log.Println("Client connected")
 	res, msg := service.ForceUnLock(req.LockName)
-	log.Println("Client disconnected")
 	return &service.ForceUnLockReply{
 		Result: res,
 		Msg:    msg,
