@@ -5,6 +5,7 @@ option go_package = "./service";
 service LockService {
   rpc Lock (LockRequest) returns (LockReply) {}
   rpc UnLock (UnLockRequest) returns (UnLockReply) {}
+  rpc ForceLock (ForceLockRequest) returns (ForceLockReply) {}
   rpc ForceUnLock (ForceUnLockRequest) returns (ForceUnLockReply) {}
 }
 
@@ -24,6 +25,16 @@ message UnLockRequest {
 }
 
 message UnLockReply {
+  bool result = 1;
+  string msg = 2;
+}
+
+message ForceLockRequest {
+  string clientId = 1;
+  string lockName = 2;
+}
+
+message ForceLockReply {
   bool result = 1;
   string msg = 2;
 }

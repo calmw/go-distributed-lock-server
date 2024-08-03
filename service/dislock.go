@@ -60,6 +60,17 @@ func UnLock(lockName, clientId string) (bool, string) {
 	return true, "ok"
 }
 
+// ForceLock 强制加锁，避免比如某个客户端退出未释放锁，导致其他客户端拿不到锁
+func ForceLock(lockName, clientId string) (bool, string) {
+	lock := createLockIfNotExist(lockName)
+	lock.mu.Lock()
+	defer lock.mu.Unlock()
+	lock.Status = true
+	lock.LockClientId = clientId
+
+	return true, "ok"
+}
+
 // ForceUnLock 强制释放锁，避免比如某个客户端退出未释放锁，导致其他客户端拿不到锁
 func ForceUnLock(lockName string) (bool, string) {
 	lock, ok := locks[lockName]
