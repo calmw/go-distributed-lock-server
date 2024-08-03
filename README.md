@@ -8,7 +8,7 @@
 
 ```shell
 distributed_lock:
-    image: calmw/distributed_lock_server:0.0.4
+    image: calmw/distributed_lock_server:0.0.8
     container_name: distributed_lock_server
     restart: always
     environment:

@@ -9,87 +9,91 @@ const LockClientId = "lock-client-a"
 
 func main() {
 	InitLock()
-	TaskLock()
-	defer TaskUnLock()
+	TaskLock("some_lock")
+	defer TaskUnLock("some_lock")
 	time.Sleep(time.Second * 10) // 模拟操作
 }
 
-func TaskLock() {
-	log.Printf("%s,加锁... \n", LockClientId)
-	for i := 1; i <= 3; i++ {
-		res := DisLock(i, LockClientId)
+func TaskLock(lockName string) {
+	t := time.Now()
+	log.Printf("%s %s,加锁...", lockName, LockClientId)
+	for i := 1; i <= 60; i++ { // 10分钟
+		if i == 60 {
+			_, _ = ForceUnLock()
+			log.Printf("%s,强制释放锁,%d", LockClientId, i)
+			break
+		}
+		res := DisLock(i, lockName, LockClientId)
 		if res == 1 {
 			break
 		} else if res == 2 {
-			_, _ = ForceUnLock()
-			log.Printf("%s,强制释放锁,%d \n", LockClientId, i)
 			continue
 		}
 	}
 
-	log.Printf("%s,执行加锁后的业务... \n", LockClientId)
+	log.Printf("%s %s %d, 执行加锁后的业务...", lockName, LockClientId, time.Since(t))
 }
 
-func TaskUnLock() {
-	log.Printf("%s,释放锁... \n", LockClientId)
-	for i := 1; i <= 3; i++ {
-		res := DisUnLock(i, LockClientId)
+func TaskUnLock(lockName string) {
+	t := time.Now()
+	log.Printf("%s %s,释放锁...", lockName, LockClientId)
+	for i := 1; i <= 60; i++ {
+		if i == 60 {
+			_, _ = ForceUnLock()
+			log.Printf("%s,强制释放锁,%d", LockClientId, i)
+			break
+		}
+		res := DisUnLock(i, lockName, LockClientId)
 		if res == 1 {
 			break
 		} else if res == 2 {
-			_, _ = ForceUnLock()
-			log.Printf("%s,强制释放锁,%d \n", LockClientId, i)
 			continue
 		}
 	}
 
-	log.Printf("%s,执行释放锁后的业务... \n", LockClientId)
+	log.Printf("%s %s %d,执行释放锁后的业务...", lockName, LockClientId, time.Since(t))
 }
 
-func DisLock(times int, clientId string) int {
+func DisLock(times int, lockName, LockClientId string) int {
 	var result int
-	log.Printf("%s,第%d轮加锁 \n", clientId, times)
+	var err error
 	for i := 1; i <= 50; i++ {
 		if i == 50 {
-			log.Printf("%s,本轮加锁失败 \n", clientId)
 			result = 2 // 加锁失败
 			break
 		}
-		ok, err := Lock(clientId)
+		ok, e := Lock(LockClientId)
 		if ok {
-			log.Printf("%s,第%d轮第%d次加锁成功 \n", clientId, times, i)
 			result = 1 // 加锁成功
+			err = nil
 			break
-		} else {
-			log.Printf("%s,第%d轮第%d次加锁失败 %v \n", clientId, times, i, err)
 		}
-		time.Sleep(time.Microsecond * 300)
+		err = e
+		time.Sleep(time.Millisecond * 200)
 	}
-	log.Printf("%s 第%d轮加锁 result %d \n", clientId, times, result)
+	log.Printf("%s-%s 第%d轮加锁 result %d %v", lockName, LockClientId, times, result, err)
 
 	return result
 }
 
-func DisUnLock(times int, clientId string) int {
+func DisUnLock(times int, lockName, LockClientId string) int {
 	var result int
-	log.Printf("%s,第%d轮释放锁 \n", clientId, times)
+	var err error
 	for i := 1; i <= 50; i++ {
 		if i == 50 {
-			log.Printf("%s,本轮释放锁失败 \n", clientId)
 			result = 2 // 释放锁失败
 			break
 		}
-		ok, err := UnLock(clientId)
+		ok, e := UnLock(LockClientId)
 		if ok {
-			log.Printf("%s,第%d轮第%d次释放锁成功 \n", clientId, times, i)
+			err = nil
 			result = 1 // 释放锁成功
 			break
-		} else {
-			log.Printf("%s,第%d轮第%d次释放锁失败 %v \n", clientId, times, i, err)
 		}
-		time.Sleep(time.Microsecond * 300)
+		err = e
+		time.Sleep(time.Millisecond * 200)
 	}
-	log.Printf("%s 第%d轮释放锁 result %d \n", clientId, times, result)
+	log.Printf("%s-%s 第%d轮释放锁 result %d %v", lockName, LockClientId, times, result, err)
 
 	return result
 }
