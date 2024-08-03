@@ -12,19 +12,25 @@ type DisLock struct {
 	Status       bool
 }
 
-var CheckExistLock *sync.Mutex
+var existLock *sync.Mutex
 
-var Locks map[string]*DisLock // LockName=>*DisLock
+var locks map[string]*DisLock // LockName=>*DisLock
+
+func InitLock() {
+	existLock = new(sync.Mutex)
+	locks = map[string]*DisLock{}
+}
 
 func createLockIfNotExist(lockName string) *DisLock {
-	CheckExistLock.Lock()
-	defer CheckExistLock.Unlock()
-	lock, ok := Locks[lockName]
+	existLock.Lock()
+	defer existLock.Unlock()
+	lock, ok := locks[lockName]
 	if !ok {
-		Locks[lockName] = &DisLock{
+		locks[lockName] = &DisLock{
 			LockName: lockName,
 			mu:       new(sync.Mutex),
 		}
+		lock = locks[lockName]
 	}
 	return lock
 }
@@ -56,9 +62,9 @@ func UnLock(lockName, clientId string) (bool, string) {
 
 // ForceUnLock 强制释放锁，避免比如某个客户端退出未释放锁，导致其他客户端拿不到锁
 func ForceUnLock(lockName string) (bool, string) {
-	lock, ok := Locks[lockName]
+	lock, ok := locks[lockName]
 	if !ok {
-		Locks[lockName] = &DisLock{
+		locks[lockName] = &DisLock{
 			LockName: lockName,
 			Status:   false,
 			mu:       new(sync.Mutex),

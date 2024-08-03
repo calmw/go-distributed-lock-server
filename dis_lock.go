@@ -8,12 +8,10 @@ import (
 	"log"
 	"net"
 	"os"
-	"sync"
 )
 
 func main() {
-	service.CheckExistLock = new(sync.Mutex)
-	service.Locks = make(map[string]*service.DisLock)
+	service.InitLock()
 
 	listenAddr := os.Getenv("LISTEN_ADDR")
 	if len(listenAddr) == 0 {
