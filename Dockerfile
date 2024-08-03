@@ -1,4 +1,4 @@
-# Copyright 2020 ChainSafe Systems
+# Copyright 2024 calm.wang@hotmail.com
 # SPDX-License-Identifier: LGPL-3.0-only
 
 FROM  golang AS builder
