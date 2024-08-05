@@ -1,9 +1,9 @@
 ## 安装protoc以及插件
 
-- 1.1 安装protoc命令 ``` brew install protobuf ```
+- 1 安装protoc命令 ``` brew install protobuf ```
 
-- 1.2 安装protobuf插件 ``` go install google.golang.org/protobuf/cmd/protoc-gen-go@latest ```
-- 1.3 安装protobuf插件 ``` go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest ```,
+- 2 安装protobuf插件 ``` go install google.golang.org/protobuf/cmd/protoc-gen-go@latest ```
+- 3 安装protobuf插件 ``` go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest ```,
   生成gRPC相关代码需要安装grpc-go相关的插件protoc-gen-go-grpc
 
 ## 使用protoc命令生成go代码
