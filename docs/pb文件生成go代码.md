@@ -11,7 +11,7 @@
 - 目录中的子目录需要事先创建
 
 ``` shell
-# 将lock.proto放到service目录，并会在该目录下执行下面命令
+# 将lock.proto放到service目录，并在该目录下执行下面命令
 protoc --go_out=../service --go_opt=paths=source_relative \
     --go-grpc_out=../service --go-grpc_opt=paths=source_relative \
     --proto_path ../service \
