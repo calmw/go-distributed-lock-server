@@ -40,7 +40,7 @@ message ForceLockReply {
 }
 
 message ForceUnLockRequest {
-  string lockName = 2;
+  string lockName = 1;
 }
 
 message ForceUnLockReply {

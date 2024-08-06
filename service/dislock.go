@@ -21,9 +21,10 @@ func InitLock() {
 	locks = map[string]*DisLock{}
 }
 
-func createLockIfNotExist(lockName string) *DisLock {
+func createLockIfNotExist(lockName string) (*DisLock, bool) {
 	existLock.Lock()
 	defer existLock.Unlock()
+	var exist bool
 	lock, ok := locks[lockName]
 	if !ok {
 		locks[lockName] = &DisLock{
@@ -31,12 +32,25 @@ func createLockIfNotExist(lockName string) *DisLock {
 			mu:       new(sync.Mutex),
 		}
 		lock = locks[lockName]
+	} else {
+		exist = true
 	}
-	return lock
+	return lock, exist
+}
+
+func checkLockExist(lockName string) (*DisLock, bool) {
+	existLock.Lock()
+	defer existLock.Unlock()
+	var exist bool
+	lock, ok := locks[lockName]
+	if ok {
+		exist = true
+	}
+	return lock, exist
 }
 
 func Lock(lockName, clientId string) (bool, string) {
-	lock := createLockIfNotExist(lockName)
+	lock, _ := createLockIfNotExist(lockName)
 	lock.mu.Lock()
 	defer lock.mu.Unlock()
 	if lock.Status {
@@ -49,7 +63,10 @@ func Lock(lockName, clientId string) (bool, string) {
 }
 
 func UnLock(lockName, clientId string) (bool, string) {
-	lock := createLockIfNotExist(lockName)
+	lock, exist := checkLockExist(lockName)
+	if !exist {
+		return false, fmt.Sprintf("lockName(%s), does not exist", lockName)
+	}
 	lock.mu.Lock()
 	defer lock.mu.Unlock()
 	if lock.LockClientId != clientId {
@@ -62,7 +79,7 @@ func UnLock(lockName, clientId string) (bool, string) {
 
 // ForceLock 强制加锁，避免比如某个客户端退出未释放锁，导致其他客户端拿不到锁
 func ForceLock(lockName, clientId string) (bool, string) {
-	lock := createLockIfNotExist(lockName)
+	lock, _ := createLockIfNotExist(lockName)
 	lock.mu.Lock()
 	defer lock.mu.Unlock()
 	lock.Status = true
@@ -71,16 +88,11 @@ func ForceLock(lockName, clientId string) (bool, string) {
 	return true, "ok"
 }
 
-// ForceUnLock 强制释放锁，避免比如某个客户端退出未释放锁，导致其他客户端拿不到锁
+// ForceUnLock 强制释放锁(所有节点都释放)，避免比如某个客户端退出未释放锁，导致其他客户端拿不到锁
 func ForceUnLock(lockName string) (bool, string) {
-	lock, ok := locks[lockName]
-	if !ok {
-		locks[lockName] = &DisLock{
-			LockName: lockName,
-			Status:   false,
-			mu:       new(sync.Mutex),
-		}
-		return false, fmt.Sprintf("lockName(%s), not exist", lock.LockName)
+	lock, exist := checkLockExist(lockName)
+	if !exist {
+		return false, fmt.Sprintf("lockName(%s), does not exist", lockName)
 	}
 	lock.mu.Lock()
 	defer lock.mu.Unlock()
