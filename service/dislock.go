@@ -8,7 +8,7 @@ import (
 type DisLock struct {
 	mu           *sync.Mutex
 	LockName     string
-	LockClientId string // 加锁的clientID，也需要改clientID释放
+	LockClientId string // 加锁的clientID
 	Status       bool
 }
 
