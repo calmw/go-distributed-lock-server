@@ -66,7 +66,7 @@ func (s *LockServer) UnLock(ctx context.Context, req *service.UnLockRequest) (*s
 }
 
 func (s *LockServer) ForceLock(ctx context.Context, req *service.ForceLockRequest) (*service.ForceLockReply, error) {
-	res, msg := service.ForceLock(req.LockName, req.LockName)
+	res, msg := service.ForceLock(req.LockName, req.ClientId)
 	return &service.ForceLockReply{
 		Result: res,
 		Msg:    msg,
